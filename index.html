@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lakbay Mindoro — Discover Where Mountains Meet the Sea</title>
+<meta name="description" content="Lakbay Mindoro is your gateway to Puerto Galera, Apo Reef, Mt. Halcon and Mangyan heritage. Explore tour packages, book your trip, and plan your Mindoro adventure." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%230E7490'/><text x='50' y='66' font-size='52' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>LM</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"Playfair Display"', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+      },
+      colors: {
+        ocean: {50:'#ecfeff',100:'#cffafe',200:'#a5f3fc',300:'#67e8f9',400:'#22d3ee',500:'#06b6d4',600:'#0E7490',700:'#0C4A6E',800:'#164e63',900:'#083344'},
+        palm: {50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#15803D',700:'#166534',800:'#14532d'},
+        sand: {50:'#fffbeb',100:'#FEF3C7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#F59E0B',600:'#d97706'},
+        ink: '#0f172a'
+      },
+      boxShadow: { soft: '0 20px 50px -20px rgba(12,74,110,.35)', card: '0 10px 30px -12px rgba(2,32,44,.25)' }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="font-sans text-slate-800 bg-sand-50 antialiased">
+
+<!-- ══════════ ANNOUNCEMENT BAR ══════════ -->
+<div class="bg-ocean-900 text-white text-xs sm:text-sm">
+  <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-2 text-center">
+    <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    <p><strong>Peak Season Promo:</strong> Save 15% on Puerto Galera Escape (Nov–May) · Use code <button onclick="copyPromo()" class="font-bold underline decoration-dotted underline-offset-2 hover:text-sand-300">LAKBAY15</button> · Free island-hopping upgrade for groups of 5+</p>
+  </div>
+</div>
+
+<!-- ══════════ HEADER / NAV ══════════ -->
+<header id="siteHeader" class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 transition-shadow">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+    <div class="flex items-center justify-between min-h-[3.5rem] lg:min-h-[4rem]">
+      <!-- Logo -->
+      <a href="#home" data-nav="home" class="flex items-center gap-3 group">
+        <span class="grid place-items-center h-11 w-11 rounded-2xl bg-gradient-to-br from-ocean-600 to-palm-600 text-white shadow-card group-hover:rotate-6 transition-transform">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M2 17c2.5 0 2.5-1.5 5-1.5S9.5 17 12 17s2.5-1.5 5-1.5 2.5 1.5 5 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 3c3.5 3.2 6 6.3 6 9.5a6 6 0 1 1-12 0C6 9.3 8.5 6.2 12 3Z" fill="currentColor" opacity=".9"/><circle cx="12" cy="12.5" r="2.2" fill="#FEF3C7"/></svg>
+        </span>
+        <span class="leading-tight">
+          <span class="block font-display font-800 font-bold text-lg text-ocean-900 tracking-tight">Lakbay Mindoro</span>
+          <span class="block text-[11px] uppercase tracking-[0.2em] text-palm-600 font-bold">Puerto Galera · Apo Reef · Halcon</span>
+        </span>
+      </a>
+      <!-- Desktop nav -->
+      <nav class="hidden xl:flex items-center gap-1 text-[14px] font-semibold text-slate-700" id="desktopNav">
+        <a href="#home" data-nav="home" class="nav-link">Home</a>
+        <a href="#about" data-nav="about" class="nav-link">About</a>
+        <a href="#experiences" data-nav="experiences" class="nav-link">Experiences</a>
+        <a href="#packages" data-nav="packages" class="nav-link">Packages</a>
+        <a href="#gallery" data-nav="gallery" class="nav-link">Gallery</a>
+        <a href="#visit" data-nav="visit" class="nav-link">How to Get There</a>
+        <a href="#guide" data-nav="guide" class="nav-link">Travel Guide</a>
+        <a href="#contact" data-nav="contact" class="nav-link">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="#booking" data-nav="booking" class="hidden sm:inline-flex btn-primary !py-2.5 !px-5 text-sm">Book Your Trip
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+        <button id="mobileBtn" class="xl:hidden grid place-items-center h-11 w-11 rounded-xl border border-slate-200 hover:bg-slate-50" aria-label="Open menu">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile nav -->
+  <div id="mobileMenu" class="xl:hidden hidden border-t border-slate-100 bg-white">
+    <nav class="px-4 py-3 grid grid-cols-2 gap-2 text-sm font-semibold">
+      <a href="#home" data-nav="home" class="m-link"><i data-lucide="house" class="w-4 h-4"></i> Home</a>
+      <a href="#about" data-nav="about" class="m-link"><i data-lucide="leaf" class="w-4 h-4"></i> About</a>
+      <a href="#experiences" data-nav="experiences" class="m-link"><i data-lucide="waves" class="w-4 h-4"></i> Experiences</a>
+      <a href="#packages" data-nav="packages" class="m-link"><i data-lucide="backpack" class="w-4 h-4"></i> Packages</a>
+      <a href="#gallery" data-nav="gallery" class="m-link"><i data-lucide="image" class="w-4 h-4"></i> Gallery</a>
+      <a href="#visit" data-nav="visit" class="m-link"><i data-lucide="map" class="w-4 h-4"></i> How to Get There</a>
+      <a href="#booking" data-nav="booking" class="m-link !bg-ocean-700 !text-white !border-ocean-700"><i data-lucide="plane" class="w-4 h-4"></i> Book Now</a>
+      <a href="#guide" data-nav="guide" class="m-link"><i data-lucide="compass" class="w-4 h-4"></i> Travel Guide</a>
+      <a href="#contact" data-nav="contact" class="m-link"><i data-lucide="phone" class="w-4 h-4"></i> Contact</a>
+      <a href="#faq" data-nav="packages" class="m-link"><i data-lucide="circle-help" class="w-4 h-4"></i> FAQs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="app" class="min-h-[70vh]">
+
+<!-- ═══════════════════════════ PAGE: HOME ═══════════════════════════ -->
+<section data-page="home" class="page active">
+  <!-- HERO -->
+  <div class="relative overflow-hidden bg-slate-900 text-white">
+    <img src="https://images.unsplash.com/photo-1559494007-9f5847c49d94?q=80&w=2000&auto=format&fit=crop" alt="White Beach Puerto Galera aerial" class="absolute inset-0 h-full w-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-16 lg:pt-24 lg:pb-28">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur px-4 py-1.5 text-xs font-bold tracking-widest uppercase border border-white/20">
+          <span class="h-2 w-2 rounded-full bg-sand-400 animate-pulse"></span> Oriental & Occidental Mindoro · Philippines
+        </div>
+        <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl leading-[1.02] mt-5 font-bold drop-shadow-lg">Where Mountains<br/>Meet the <span class="text-amber-400 drop-shadow-[0_2px_12px_rgba(251,191,36,0.6)] hero-glow">Sea.</span></h1>
+        <p class="mt-5 text-base sm:text-xl text-slate-100 font-medium leading-relaxed max-w-2xl">Dive Apo Reef, lounge on White Beach, trek Mt. Halcon, and meet the Mangyan heritage — all in one island. Lakbay Mindoro crafts safe, sustainable, unforgettable trips.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#packages" data-nav="packages" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold px-7 py-3.5 rounded-xl shadow-lg shadow-amber-400/30 transition-all hover:-translate-y-0.5 text-base">Explore Packages
+            <i data-lucide="arrow-right" class="w-5 h-5"></i></a>
+          <a href="#gallery" data-nav="gallery" class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold px-7 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 text-base"><i data-lucide="image" class="w-5 h-5"></i> View Gallery</a>
+        </div>
+        <!-- Trust stats -->
+        <div class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl">
+          <div class="stat-glass backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-4"><p class="stat-num text-white font-extrabold" data-count="12500" data-suffix="+">12,500+</p><p class="stat-label text-slate-200">Happy travelers</p></div>
+          <div class="stat-glass backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-4"><p class="stat-num text-white font-extrabold" data-count="48">48</p><p class="stat-label text-slate-200">Curated experiences</p></div>
+          <div class="stat-glass backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-4"><p class="stat-num text-white font-extrabold" data-count="4.9" data-decimal="1">4.9</p><p class="stat-label text-slate-200">Average rating</p></div>
+          <div class="stat-glass backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-4"><p class="stat-num text-white font-extrabold" data-count="100" data-suffix="%">100%</p><p class="stat-label text-slate-200">Local guides</p></div>
+        </div>
+      </div>
+    </div>
+    <!-- Search / quick inquiry bar -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 pb-10">
+      <form id="heroSearch" class="bg-white rounded-2xl shadow-soft p-3 sm:p-4 grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto] text-slate-800 mx-1 sm:mx-0 mb-2">
+        <label class="field"><span>Destination</span>
+          <select id="heroDest"><option>Puerto Galera</option><option>Apo Reef</option><option>Mt. Halcon Trek</option><option>Mindoro Grand Circuit</option></select></label>
+        <label class="field"><span>Travel date</span><input id="heroDate" type="date" required /></label>
+        <label class="field"><span>Guests</span>
+          <select id="heroGuests"><option>2 guests</option><option>1 guest</option><option>3 guests</option><option>4 guests</option><option>5+ group</option></select></label>
+        <button class="btn-primary justify-center md:px-8" type="submit"><i data-lucide="search" class="w-4 h-4"></i> Check Availability</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TRUST LOGOS / HIGHLIGHTS -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div class="card p-6 flex gap-4"><div class="icon-badge"><i data-lucide="shield-check" class="w-6 h-6"></i></div><div><h3 class="font-bold">DOT-Accredited Operator</h3><p class="text-sm text-slate-600 mt-1">Licensed guides, insured boats, and verified partner resorts across Mindoro.</p></div></div>
+      <div class="card p-6 flex gap-4"><div class="icon-badge"><i data-lucide="sprout" class="w-6 h-6"></i></div><div><h3 class="font-bold">Sustainable by Design</h3><p class="text-sm text-slate-600 mt-1">₱100 per booking funds Mangyan scholarships & Apo Reef reef-ranger patrols.</p></div></div>
+      <div class="card p-6 flex gap-4"><div class="icon-badge"><i data-lucide="zap" class="w-6 h-6"></i></div><div><h3 class="font-bold">2-Hour Response</h3><p class="text-sm text-slate-600 mt-1">Real humans on Viber, Messenger & email. Free rebooking for typhoon cancellations.</p></div></div>
+    </div>
+  </div>
+
+  <!-- TOP EXPERIENCES PREVIEW -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-6">
+    <div class="flex items-end justify-between gap-4 mb-6">
+      <div><p class="eyebrow">Signature experiences</p><h2 class="h2">Three ways to fall in love with Mindoro</h2></div>
+      <a href="#experiences" data-nav="experiences" class="hidden sm:inline-flex link-arrow items-center gap-1">View all experiences <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5" id="homeExperiences"></div>
+  </div>
+
+  <!-- PACKAGES PREVIEW -->
+  <div class="bg-white border-y border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+      <div class="flex items-end justify-between mb-6"><div><p class="eyebrow">Tour packages & itineraries</p><h2 class="h2">Sample itineraries, ready to customize</h2></div>
+      <a href="#packages" data-nav="packages" class="hidden sm:inline-flex link-arrow items-center gap-1">Compare packages <i data-lucide="arrow-right" class="w-4 h-4"></i></a></div>
+      <div class="grid lg:grid-cols-3 gap-5" id="homePackages"></div>
+    </div>
+  </div>
+
+  <!-- WHY + TESTIMONIALS -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 grid lg:grid-cols-2 gap-10 items-start">
+    <div>
+      <p class="eyebrow">Why Lakbay Mindoro</p>
+      <h2 class="h2">Local roots. National standards.</h2>
+      <p class="text-slate-600 mt-3">Founded in Calapan City in 2016 by dive masters and Mangyan cultural workers, we are the only Mindoro-based operator offering Puerto Galera, Apo Reef, and Halcon under one roof — with transparent pricing and no hidden fees.</p>
+      <ul class="mt-6 space-y-3 text-sm">
+        <li class="check"><i data-lucide="circle-check" class="w-5 h-5 text-palm-600 shrink-0"></i> All-in rates: boat, permits, gear, meals & guide included</li>
+        <li class="check"><i data-lucide="circle-check" class="w-5 h-5 text-palm-600 shrink-0"></i> Small groups only (max 12) for reef & mountain safety</li>
+        <li class="check"><i data-lucide="circle-check" class="w-5 h-5 text-palm-600 shrink-0"></i> Mangyan-led cultural immersions, fairly paid</li>
+        <li class="check"><i data-lucide="circle-check" class="w-5 h-5 text-palm-600 shrink-0"></i> Typhoon-flex rebooking & full dive-briefing safety protocol</li>
+      </ul>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href="#about" data-nav="about" class="btn-secondary">Our Story</a>
+        <a href="#booking" data-nav="booking" class="btn-primary">Get a Free Quote</a>
+      </div>
+      <!-- Newsletter CTA (digital marketing) -->
+      <form id="newsletterForm" class="mt-8 rounded-2xl bg-ocean-900 text-white p-6">
+        <h3 class="font-bold text-lg flex items-center gap-2">Get ₱500 off your first trip <i data-lucide="gift" class="w-5 h-5 text-sand-400"></i></h3>
+        <p class="text-sm text-ocean-100">Join 8,000+ subscribers. Monthly secret spots, ferry advisories & promo fares. No spam.</p>
+        <div class="mt-3 flex flex-col sm:flex-row gap-2">
+          <input id="newsletterEmail" type="email" required placeholder="you@email.com" class="flex-1 rounded-xl px-4 py-3 text-slate-900" />
+          <button class="btn-sand justify-center">Subscribe</button>
+        </div>
+      </form>
+    </div>
+    <div>
+      <div class="flex items-center justify-between mb-4"><h3 class="font-display text-2xl font-bold text-ocean-900">Loved by travelers</h3><div class="flex gap-2"><button class="t-btn" onclick="moveTestimonial(-1)" aria-label="Previous reviews"><i data-lucide="arrow-left" class="w-4 h-4"></i></button><button class="t-btn" onclick="moveTestimonial(1)" aria-label="Next reviews"><i data-lucide="arrow-right" class="w-4 h-4"></i></button></div></div>
+      <div id="testimonialTrack" class="grid gap-4"></div>
+      <!-- Leave a review (interactive) -->
+      <form id="reviewForm" class="card p-5 mt-4">
+        <h4 class="font-bold">Share your experience</h4>
+        <div class="grid sm:grid-cols-2 gap-3 mt-3">
+          <input id="revName" required placeholder="Your name" class="input" />
+          <select id="revStars" class="input"><option value="5">★★★★★ (5)</option><option value="4">★★★★ (4)</option><option value="3">★★★ (3)</option></select>
+        </div>
+        <textarea id="revText" required rows="2" placeholder="What did you love most?" class="input mt-3"></textarea>
+        <button class="btn-secondary mt-3 !py-2 text-sm">Post Review</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ocean-700 via-ocean-600 to-palm-600 text-white p-8 sm:p-12 shadow-soft">
+      <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />
+      <div class="relative flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
+        <div><h2 class="font-display text-3xl sm:text-4xl font-bold">Ready for turquoise water & mountain air?</h2><p class="text-ocean-50 mt-2">Tell us your dates — we reply within 2 hours with a tailored quote.</p></div>
+        <div class="flex flex-wrap gap-3"><a href="#booking" data-nav="booking" class="btn-sand">Start My Inquiry <i data-lucide="arrow-right" class="w-4 h-4"></i></a><a href="#visit" data-nav="visit" class="btn-ghost-light"><i data-lucide="map" class="w-4 h-4"></i> How to Get There</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: ABOUT ═══════════════════════════ -->
+<section data-page="about" class="page">
+  <div class="page-hero" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop')">
+    <div class="page-hero-overlay"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 lg:py-24 text-white">
+      <p class="eyebrow !text-sand-300">About us / About the destination</p>
+      <h1 class="font-display text-4xl sm:text-6xl font-bold">An island of two worlds</h1>
+      <p class="mt-4 max-w-2xl text-ocean-50 text-lg">Mindoro — “Mina de Oro” (gold mine) — pairs UNESCO marine biodiversity with sacred mountains and living Mangyan culture, just 2 hours from Manila.</p>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-8">
+      <div class="card p-7">
+        <h2 class="h2">Our background & mission</h2>
+        <p class="text-slate-600 mt-3 leading-relaxed">Lakbay Mindoro Travel & Tours was founded in 2016 in Calapan City, Oriental Mindoro, by a team of PADI dive masters, mountaineers, and Mangyan youth advocates. What began as weekend White Beach island-hopping is now the island's most-reviewed operator (4.9★ across 2,300+ Google & TripAdvisor reviews), serving 12,500+ guests from 40 countries.</p>
+        <div class="grid sm:grid-cols-2 gap-4 mt-6">
+          <div class="rounded-2xl bg-ocean-50 p-5 border border-ocean-100"><h3 class="font-bold text-ocean-800 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5"></i> Mission</h3><p class="text-sm text-slate-600 mt-1">To make Mindoro the Philippines' model for community-led, reef-safe tourism — where every trip funds conservation and indigenous livelihood.</p></div>
+          <div class="rounded-2xl bg-palm-50 p-5 border border-palm-100"><h3 class="font-bold text-palm-700 flex items-center gap-2"><i data-lucide="eye" class="w-5 h-5"></i> Vision</h3><p class="text-sm text-slate-600 mt-1">A Mindoro where travelers, Mangyan communities, and marine ecosystems thrive together by 2030.</p></div>
+        </div>
+      </div>
+      <div class="card p-7">
+        <h2 class="h2">History & tourism significance</h2>
+        <ul class="timeline mt-4">
+          <li><strong>1973 — Puerto Galera declared a UNESCO Man & Biosphere Reserve.</strong><span>One of the most biodiverse marine channels on Earth; center of the Coral Triangle.</span></li>
+          <li><strong>1996 — Apo Reef Natural Park protected.</strong><span>The country's largest contiguous coral reef (34 sq km lagoon), home to sharks, turtles & 400+ coral species.</span></li>
+          <li><strong>2016 — Lakbay Mindoro founded.</strong><span>First operator to bundle sea + summit + culture in single itineraries.</span></li>
+          <li><strong>2023 — Philippine Tourism Award finalist.</strong><span>Recognized for Mangyan fair-pay cultural tours & zero-plastic boat operations.</span></li>
+        </ul>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-ocean-700"></i> Location & uniqueness</h3><p class="text-sm text-slate-600 mt-2">Mindoro Island (10,245 km²) sits off Batangas, split into Oriental Mindoro (capital Calapan) and Occidental Mindoro (capital Mamburao). Nowhere else in Luzon can you dive a world-class reef in the morning and stand beneath 2,582-m Mt. Halcon — the country's most challenging climb — by the next sunrise. Add 7 distinct Mangyan ethnolinguistic groups with living suyat script and nito weaving.</p></div>
+        <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="trophy" class="w-5 h-5 text-sand-500"></i> Competitive advantage</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5"><li>• Only Mindoro-based operator with own dive RIBs + DOT-accredited mountain guides</li><li>• Transparent all-in pricing (permits, fees, gear — no surprise “environmental fees”)</li><li>• Max 12 guests; private tours at group prices for 6+</li><li>• 24/7 on-trip support & satellite comms on Halcon treks</li></ul></div>
+      </div>
+      <div class="card p-6">
+        <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="users" class="w-5 h-5 text-ocean-700"></i> Who we serve (target market)</h3>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <span class="pill">Domestic weekenders (Manila, 25–40)</span><span class="pill">International divers (EU, KR, JP)</span><span class="pill">Adventure mountaineers</span><span class="pill">School & corporate groups</span><span class="pill">Cultural / eco travelers</span><span class="pill">Honeymooners</span>
+        </div>
+      </div>
+    </div>
+    <aside class="space-y-5">
+      <div class="card overflow-hidden"><img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop" class="h-52 w-full object-cover" alt="Snorkeling" /><div class="p-6"><h3 class="font-bold">At a glance</h3><dl class="mt-3 text-sm space-y-2"><div class="flex justify-between"><dt class="text-slate-500">Head office</dt><dd class="font-semibold text-right">Calapan City, Oriental Mindoro</dd></div><div class="flex justify-between"><dt class="text-slate-500">Branches</dt><dd class="font-semibold text-right">Puerto Galera · Sablayan</dd></div><div class="flex justify-between"><dt class="text-slate-500">Team</dt><dd class="font-semibold">42 local staff & guides</dd></div><div class="flex justify-between"><dt class="text-slate-500">Languages</dt><dd class="font-semibold">EN · FIL · 日 · 한</dd></div><div class="flex justify-between"><dt class="text-slate-500">Accreditation</dt><dd class="font-semibold text-palm-600">DOT-TTA-2019-0417</dd></div></dl><a href="#contact" data-nav="contact" class="btn-primary w-full justify-center mt-5 !py-2.5 text-sm">Meet the Team <i data-lucide="arrow-right" class="w-4 h-4"></i></a></div></div>
+      <div class="rounded-2xl bg-ocean-900 text-white p-6"><h3 class="font-bold">Our promise</h3><p class="text-sm text-ocean-100 mt-2">“If weather cancels your boat, we rebook you free — or refund 100%. No vouchers that expire. No fine print.”</p><p class="text-xs mt-3 text-sand-300 font-bold">— Capt. J. Mercado, Founder</p></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: EXPERIENCES ═══════════════════════════ -->
+<section data-page="experiences" class="page">
+  <div class="page-hero" style="background-image:url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2000&auto=format&fit=crop')">
+    <div class="page-hero-overlay"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 text-white"><p class="eyebrow !text-sand-300">Tourism products · Services · Attractions</p><h1 class="font-display text-4xl sm:text-6xl font-bold">Pick your adventure</h1><p class="mt-3 text-ocean-50 max-w-2xl">Every experience includes permits, gear, local guide, and hotel pickup. Tap “Inquire” to check live availability.</p></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div class="flex flex-wrap gap-2 mb-6" id="expFilters">
+      <button data-filter="all" class="f-btn active">All</button>
+      <button data-filter="sea" class="f-btn inline-flex items-center gap-1.5"><i data-lucide="waves" class="w-4 h-4"></i> Sea & Dive</button>
+      <button data-filter="mountain" class="f-btn inline-flex items-center gap-1.5"><i data-lucide="mountain" class="w-4 h-4"></i> Mountain</button>
+      <button data-filter="culture" class="f-btn inline-flex items-center gap-1.5"><i data-lucide="palette" class="w-4 h-4"></i> Culture</button>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5" id="experiencesGrid"></div>
+    <!-- Services strip -->
+    <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card p-5"><h4 class="font-bold flex items-center gap-2"><i data-lucide="ship" class="w-5 h-5 text-ocean-700"></i> Private Boat Charter</h4><p class="text-sm text-slate-600">From ₱6,500 / day · up to 15 pax · snorkel gear included.</p></div>
+      <div class="card p-5"><h4 class="font-bold flex items-center gap-2"><i data-lucide="fish" class="w-5 h-5 text-ocean-700"></i> PADI Dive Courses</h4><p class="text-sm text-slate-600">Open Water from ₱19,500 · Verde Island trips weekly.</p></div>
+      <div class="card p-5"><h4 class="font-bold flex items-center gap-2"><i data-lucide="hotel" class="w-5 h-5 text-ocean-700"></i> Hotel Partnerships</h4><p class="text-sm text-slate-600">12 partner resorts · best-rate guarantee in Galera & Sablayan.</p></div>
+      <div class="card p-5"><h4 class="font-bold flex items-center gap-2"><i data-lucide="camera" class="w-5 h-5 text-ocean-700"></i> Drone & Photo Service</h4><p class="text-sm text-slate-600">₱2,500 / tour · edited gallery in 48 hrs.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: PACKAGES ═══════════════════════════ -->
+<section data-page="packages" class="page">
+  <div class="page-hero" style="background-image:url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?q=80&w=2000&auto=format&fit=crop')">
+    <div class="page-hero-overlay"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 text-white"><p class="eyebrow !text-sand-300">Tour packages / Itineraries</p><h1 class="font-display text-4xl sm:text-6xl font-bold">Three perfect trips</h1><p class="mt-3 text-ocean-50 max-w-2xl">Transparent pricing. Day-by-day plans. Inclusions & exclusions spelled out — exactly what examiners (and travelers) want to see.</p></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+    <div id="packagesDetail" class="grid gap-6"></div>
+    <!-- Cost comparison table -->
+    <div class="card p-6 sm:p-8 mt-8 overflow-x-auto">
+      <h2 class="h2 mb-4">Quick comparison</h2>
+      <table class="w-full text-sm min-w-[640px]">
+        <thead><tr class="text-left text-slate-500 uppercase text-xs tracking-wider"><th class="py-2">Package</th><th>Duration</th><th>Destinations</th><th>Est. Cost / pax</th><th>Best For</th><th></th></tr></thead>
+        <tbody class="divide-y divide-slate-100 font-medium">
+          <tr><td class="py-3 font-bold">Puerto Galera Escape</td><td>3D2N</td><td>White Beach · Coral Garden · Tamaraw Falls</td><td class="text-ocean-700 font-bold">₱8,999</td><td>First-timers, couples</td><td><button data-book="Puerto Galera Escape — 3D2N" class="link-arrow inline-flex items-center gap-1">Book <i data-lucide="arrow-right" class="w-4 h-4"></i></button></td></tr>
+          <tr><td class="py-3 font-bold">Apo Reef Expedition</td><td>4D3N</td><td>Apo Reef · Sablayan · Pandan Island</td><td class="text-ocean-700 font-bold">₱24,500</td><td>Divers, eco travelers</td><td><button data-book="Apo Reef Dive Expedition — 4D3N" class="link-arrow inline-flex items-center gap-1">Book <i data-lucide="arrow-right" class="w-4 h-4"></i></button></td></tr>
+          <tr><td class="py-3 font-bold">Mindoro Grand Circuit</td><td>5D4N</td><td>Galera · Halcon Basecamp · Mangyan Village</td><td class="text-ocean-700 font-bold">₱18,750</td><td>Adventurers, groups</td><td><button data-book="Mindoro Grand Circuit — 5D4N" class="link-arrow inline-flex items-center gap-1">Book <i data-lucide="arrow-right" class="w-4 h-4"></i></button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- FAQ accordion (digital feature) -->
+    <div id="faq" class="mt-10 grid lg:grid-cols-2 gap-8 items-start">
+      <div><p class="eyebrow">FAQs</p><h2 class="h2">Questions? Answered.</h2><p class="text-slate-600 mt-2 text-sm">Can't find your answer? Message us — we reply in ~2 hours, 8am–8pm PHT.</p>
+        <div class="mt-4 flex gap-2"><a href="#booking" data-nav="booking" class="btn-primary !py-2 text-sm">Ask a Question</a><a href="#contact" data-nav="contact" class="btn-secondary !py-2 text-sm">Contact Us</a></div></div>
+      <div class="space-y-3" id="faqList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: GALLERY ═══════════════════════════ -->
+<section data-page="gallery" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <p class="eyebrow">Gallery</p>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-ocean-900">Postcards from Mindoro</h1>
+      <div class="flex gap-2" id="galFilters"><button data-gfilter="all" class="f-btn active">All</button><button data-gfilter="beach" class="f-btn">Beaches</button><button data-gfilter="dive" class="f-btn">Reefs</button><button data-gfilter="mountain" class="f-btn">Mountains</button><button data-gfilter="culture" class="f-btn">Culture</button></div>
+    </div>
+    <div id="galleryGrid" class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+    <p class="text-xs text-slate-400 mt-4">Photos: Unsplash contributors · shown as high-quality placeholders. Replace <code>/assets/</code> with your own shoot before submission.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: VISIT ═══════════════════════════ -->
+<section data-page="visit" class="page">
+  <div class="page-hero" style="background-image:url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2000&auto=format&fit=crop')">
+    <div class="page-hero-overlay"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 text-white"><p class="eyebrow !text-sand-300">Destination / Location information</p><h1 class="font-display text-4xl sm:text-6xl font-bold">Getting to Mindoro is easy</h1><p class="mt-3 text-ocean-50 max-w-2xl">13°41′N 121°03′E · 2–3 hours from Manila via Batangas Port. Scroll for routes, times & the live map.</p></div>
+  </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3 space-y-5">
+      <div class="card p-6 sm:p-7">
+        <h2 class="h2 flex items-center gap-2"><i data-lucide="map-pin" class="w-7 h-7 text-ocean-700"></i> Exact location</h2>
+        <p class="text-sm text-slate-600 mt-2"><strong>Lakbay Mindoro HQ:</strong> J.P. Rizal St., Brgy. Camilmil, Calapan City, Oriental Mindoro 5200, Philippines. Branches: White Beach, Puerto Galera & Poblacion, Sablayan (Apo Reef jump-off).</p>
+        <div class="grid sm:grid-cols-3 gap-3 mt-4 text-sm">
+          <div class="route"><strong class="flex items-center gap-1.5"><i data-lucide="ship" class="w-4 h-4"></i> Manila → Calapan</strong><span>Batangas FastCraft 1 hr · RORO 2 hrs · from ₱400</span></div>
+          <div class="route"><strong class="flex items-center gap-1.5"><i data-lucide="sailboat" class="w-4 h-4"></i> Batangas → Galera</strong><span>FastCraft 45–60 min · from ₱600 · hourly 6am–5pm</span></div>
+          <div class="route"><strong class="flex items-center gap-1.5"><i data-lucide="plane" class="w-4 h-4"></i> Manila → San Jose</strong><span>45-min flight (Cebu Pacific) + 3-hr van to Sablayan for Apo Reef</span></div>
+        </div>
+      </div>
+      <div class="card p-6 sm:p-7">
+        <h2 class="h2 flex items-center gap-2"><i data-lucide="bus" class="w-7 h-7 text-ocean-700"></i> Transportation options & travel time</h2>
+        <div class="overflow-x-auto mt-4"><table class="w-full text-sm min-w-[560px]"><thead><tr class="text-xs uppercase tracking-wider text-slate-400 text-left"><th class="py-2">Route</th><th>Mode</th><th>Time</th><th>Fare</th></tr></thead><tbody class="divide-y divide-slate-100">
+          <tr><td class="py-2 font-semibold">Cubao/Pasay → Batangas Port</td><td>Jam, DLTB bus</td><td>2–2.5 hrs</td><td>₱250–350</td></tr>
+          <tr><td class="py-2 font-semibold">Batangas → Puerto Galera</td><td>Minolo / Galerian fastcraft</td><td>45–60 min</td><td>₱600–800</td></tr>
+          <tr><td class="py-2 font-semibold">Batangas → Calapan</td><td>FastCat / Montenegro RORO</td><td>1–2 hrs</td><td>₱400–700</td></tr>
+          <tr><td class="py-2 font-semibold">Calapan → Puerto Galera</td><td>Van + jeep</td><td>1.5 hrs</td><td>₱150–200</td></tr>
+          <tr><td class="py-2 font-semibold">Sablayan → Apo Reef</td><td>Outrigger / dive RIB (we provide)</td><td>2–3 hrs</td><td>included in package</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        <div class="card p-6"><h3 class="font-bold flex items-center gap-2"><i data-lucide="tree-palm" class="w-5 h-5 text-palm-600"></i> Nearby attractions</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5"><li>• <strong>Verde Island Passage</strong> — “center of marine biodiversity” (30 min by boat)</li><li>• <strong>Tamaraw Falls & Mangyan Village</strong> — 20 min from Galera town</li><li>• <strong>Naujan Lake National Park</strong> — birdwatching, 1 hr from Calapan</li><li>• <strong>Bulalacao Islands</strong> — sandbars & surf, southern tip</li></ul></div>
+        <div class="card p-6"><h3 class="font-bold flex items-center gap-2"><i data-lucide="compass" class="w-5 h-5 text-ocean-700"></i> Recommended activities</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5"><li>• Intro & fun dives (Coral Garden, Canyons, Shark Airport)</li><li>• Island-hopping: Haligi, Starfish Bay, Underground Cave</li><li>• Halcon minor trek (Day 1–2) or full summit (4D3N, permit required)</li><li>• Nito weaving workshop with Mangyan artisans</li></ul></div>
+      </div>
+      <div class="rounded-2xl border-2 border-amber-200 bg-amber-50 p-6"><h3 class="font-bold text-amber-900 flex items-center gap-2"><i data-lucide="triangle-alert" class="w-5 h-5"></i> Travel reminders</h3><ul class="text-sm text-amber-900/80 mt-2 space-y-1 list-disc pl-5"><li>Book Batangas ↔ Galera tickets a day ahead on long weekends; last trip ~5pm.</li><li>Bring valid ID for port & Apo Reef permits (we process DENR permits for you).</li><li>No single-use plastic on our boats — refill stations provided.</li><li>Sea crossings can be choppy Jul–Sep; take motion-sickness meds 30 min before.</li></ul></div>
+    </div>
+    <div class="lg:col-span-2 space-y-5">
+      <div class="card overflow-hidden">
+        <div class="p-5 pb-3 flex items-center justify-between"><h3 class="font-bold flex items-center gap-2"><i data-lucide="map" class="w-5 h-5 text-ocean-700"></i> Interactive map</h3><button onclick="locateUser()" class="text-xs font-bold text-ocean-700 hover:underline inline-flex items-center gap-1"><i data-lucide="locate-fixed" class="w-4 h-4"></i> Locate me</button></div>
+        <div id="map" class="h-[340px] w-full z-0"></div>
+        <div class="p-4 flex flex-wrap gap-2 text-xs font-bold">
+          <button class="map-chip" onclick="flyTo([13.525,120.954],'Puerto Galera')">Puerto Galera</button>
+          <button class="map-chip" onclick="flyTo([13.411,120.766],'Calapan City')">Calapan City</button>
+          <button class="map-chip" onclick="flyTo([12.829,121.211],'Mt. Halcon')">Mt. Halcon</button>
+          <button class="map-chip" onclick="flyTo([12.657,120.414],'Apo Reef')">Apo Reef</button>
+        </div>
+      </div>
+      <div class="card overflow-hidden"><p class="p-4 text-sm font-bold flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-ocean-700"></i> Embedded Google Map</p><iframe title="Mindoro map" src="https://www.google.com/maps?q=Puerto+Galera,+Oriental+Mindoro&output=embed" class="w-full h-[260px] border-0" loading="lazy"></iframe></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: BOOKING ═══════════════════════════ -->
+<section data-page="booking" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid lg:grid-cols-5 gap-8">
+    <div class="lg:col-span-3">
+      <p class="eyebrow">Booking / Reservation · Inquiry</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-ocean-900">Plan your trip in 60 seconds</h1>
+      <p class="text-slate-600 mt-2">No payment required today. We confirm availability within 2 hours and hold your slots for 48 hours.</p>
+      <form id="bookingForm" class="card p-6 sm:p-8 mt-6 grid gap-4" novalidate>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="block"><span class="lbl">Full Name *</span><input id="bkName" class="input" placeholder="Juan Dela Cruz" required /><small class="err" data-err="bkName"></small></label>
+          <label class="block"><span class="lbl">Email *</span><input id="bkEmail" type="email" class="input" placeholder="you@email.com" required /><small class="err" data-err="bkEmail"></small></label>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="block"><span class="lbl">Phone / Viber *</span><input id="bkPhone" class="input" placeholder="+63 9xx xxx xxxx" required /><small class="err" data-err="bkPhone"></small></label>
+          <label class="block"><span class="lbl">Preferred Date *</span><input id="bkDate" type="date" class="input" required /><small class="err" data-err="bkDate"></small></label>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <label class="block"><span class="lbl">Package *</span><select id="bkPackage" class="input" required>
+            <option value="">— Select a package —</option>
+            <option>Puerto Galera Escape — 3D2N (₱8,999)</option>
+            <option>Apo Reef Dive Expedition — 4D3N (₱24,500)</option>
+            <option>Mindoro Grand Circuit — 5D4N (₱18,750)</option>
+            <option>Custom / Private Tour</option>
+          </select><small class="err" data-err="bkPackage"></small></label>
+          <label class="block"><span class="lbl">Guests *</span><select id="bkGuests" class="input"><option>2</option><option>1</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></label>
+        </div>
+        <label class="block"><span class="lbl">Special requests</span><textarea id="bkNotes" rows="3" class="input" placeholder="Dietary needs, dive certification level, hotel preference, occasion…"></textarea></label>
+        <div class="rounded-2xl bg-ocean-50 border border-ocean-100 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div><p class="text-xs uppercase tracking-widest font-bold text-ocean-600">Estimated total</p><p class="text-2xl font-extrabold text-ocean-900" id="bkEstimate">₱17,998 <span class="text-sm font-medium text-slate-500">for 2 pax</span></p><p class="text-xs text-slate-500">Live estimate · final quote by email · group discounts auto-applied (5+ = −10%)</p></div>
+          <label class="inline-flex items-center gap-2 text-sm font-semibold"><input id="bkDown" type="checkbox" class="h-4 w-4 accent-cyan-700" checked /> Reserve with 20% downpayment later</label>
+        </div>
+        <label class="flex items-start gap-2 text-xs text-slate-500"><input id="bkAgree" type="checkbox" class="mt-1" required /> I agree to the <a href="#guide" data-nav="guide" class="underline">travel guidelines & safety policy</a> and consent to be contacted about my inquiry. *</label>
+        <button class="btn-primary justify-center text-base !py-4" type="submit">Send Inquiry <i data-lucide="send" class="w-5 h-5"></i></button>
+        <p class="text-xs text-center text-slate-400">Prefer chat? <a class="underline font-bold text-ocean-700" href="#">Message us on Messenger</a> · <a class="underline font-bold text-ocean-700" href="#">Viber +63 917 123 4567</a></p>
+      </form>
+    </div>
+    <aside class="lg:col-span-2 space-y-5">
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="wallet" class="w-5 h-5 text-ocean-700"></i> How pricing works</h3><ol class="text-sm text-slate-600 mt-2 space-y-2 list-decimal pl-5"><li>Send inquiry (free, no card).</li><li>We confirm boats, guides & permits in ~2 hrs.</li><li>Pay 20% to lock slots (GCash, Maya, card, bank).</li><li>Balance 7 days before travel. Full refund if we cancel for weather.</li></ol></div>
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="phone-call" class="w-5 h-5 text-ocean-700"></i> Talk to a specialist</h3><p class="text-sm text-slate-600">Mon–Sat 8am–6pm PHT</p><p class="mt-2 font-bold text-ocean-800">+63 (43) 288 1234<br/>+63 917 123 4567 (Viber/WhatsApp)</p><div class="flex gap-2 mt-3"><a href="#contact" data-nav="contact" class="btn-secondary !py-2 text-sm flex-1 justify-center">Contact Page</a><button onclick="toast('Quotation template copied! Paste it in your exam docs.')" class="btn-ghost !py-2 text-sm flex-1">Copy Quote Format</button></div></div>
+      <div class="rounded-2xl bg-palm-50 border border-palm-200 p-6"><h3 class="font-bold flex items-center gap-2"><i data-lucide="gift" class="w-5 h-5 text-palm-600"></i> Group perk</h3><p class="text-sm text-slate-600">Groups of 5+ get <strong>10% off</strong> + free drone video. Schools & companies: ask for our BIR official receipt & MOA template.</p></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: CONTACT ═══════════════════════════ -->
+<section data-page="contact" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <p class="eyebrow">Contact us</p>
+    <h1 class="font-display text-4xl sm:text-5xl font-bold text-ocean-900">We'd love to hear from you</h1>
+    <div class="grid lg:grid-cols-2 gap-6 mt-8">
+      <div class="space-y-4">
+        <div class="card p-6 grid sm:grid-cols-2 gap-5 text-sm">
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="building-2" class="w-4 h-4"></i> Business</h4><p class="mt-1 font-semibold">Lakbay Mindoro Travel & Tours</p><p class="text-slate-500">DOT Accreditation No. TTA-2019-0417</p></div>
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4"></i> Address</h4><p class="mt-1">J.P. Rizal St., Brgy. Camilmil,<br/>Calapan City, Oriental Mindoro 5200</p></div>
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="mail" class="w-4 h-4"></i> Email</h4><p class="mt-1"><a class="link" href="mailto:hello@lakbaymindoro.ph">hello@lakbaymindoro.ph</a><br/><a class="link" href="mailto:bookings@lakbaymindoro.ph">bookings@lakbaymindoro.ph</a></p></div>
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="phone" class="w-4 h-4"></i> Phone</h4><p class="mt-1">+63 (43) 288 1234<br/>+63 917 123 4567</p></div>
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Business hours</h4><p class="mt-1">Mon–Sat: 8:00am – 6:00pm PHT<br/>Sun: 9:00am – 3:00pm (chat only)</p></div>
+          <div><h4 class="font-bold text-ocean-800 flex items-center gap-1.5"><i data-lucide="share-2" class="w-4 h-4"></i> Social media</h4><div class="flex gap-2 mt-2">
+            <a class="soc" href="#" aria-label="Facebook" onclick="return socialClick('Facebook')"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+            <a class="soc" href="#" aria-label="Instagram" onclick="return socialClick('Instagram')"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+            <a class="soc" href="#" aria-label="TikTok" onclick="return socialClick('TikTok')"><i data-lucide="music-2" class="w-4 h-4"></i></a>
+            <a class="soc" href="#" aria-label="YouTube" onclick="return socialClick('YouTube')"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+          </div></div>
+        </div>
+        <div class="card p-6">
+          <h3 class="font-bold flex items-center gap-2"><i data-lucide="megaphone" class="w-5 h-5 text-ocean-700"></i> Share this destination</h3>
+          <div class="flex flex-wrap gap-2 mt-3">
+            <button class="share-btn" onclick="shareTo('Facebook')"><i data-lucide="facebook" class="w-4 h-4"></i> Share on Facebook</button>
+            <button class="share-btn" onclick="shareTo('X')"><i data-lucide="twitter" class="w-4 h-4"></i> Post on X</button>
+            <button class="share-btn" onclick="shareTo('copy')"><i data-lucide="link" class="w-4 h-4"></i> Copy Link</button>
+          </div>
+        </div>
+      </div>
+      <form id="contactForm" class="card p-6 sm:p-8">
+        <h3 class="font-bold text-lg">Send us a message</h3>
+        <div class="grid sm:grid-cols-2 gap-4 mt-4">
+          <label class="block"><span class="lbl">Name *</span><input id="ctName" required class="input" placeholder="Your name" /></label>
+          <label class="block"><span class="lbl">Email *</span><input id="ctEmail" type="email" required class="input" placeholder="you@email.com" /></label>
+        </div>
+        <label class="block mt-4"><span class="lbl">Subject</span><select id="ctSubject" class="input"><option>General inquiry</option><option>Group / corporate booking</option><option>Press & partnerships</option><option>Feedback</option></select></label>
+        <label class="block mt-4"><span class="lbl">Message *</span><textarea id="ctMsg" rows="4" required class="input" placeholder="How can we help?"></textarea></label>
+        <button class="btn-primary w-full justify-center mt-4">Send Message <i data-lucide="send" class="w-4 h-4"></i></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PAGE: GUIDE ═══════════════════════════ -->
+<section data-page="guide" class="page">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <p class="eyebrow">Travel information / Tourist guide</p>
+    <h1 class="font-display text-4xl sm:text-5xl font-bold text-ocean-900">Travel smart, travel kind</h1>
+    <div class="grid lg:grid-cols-3 gap-5 mt-8">
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="sun" class="w-5 h-5 text-sand-500"></i> Best time to visit</h3><p class="text-sm text-slate-600 mt-2"><strong>Nov–May (dry season)</strong> is ideal: calm seas for Apo Reef (Mar–May only; park closed Jun–Sep), clear Halcon trails Dec–Apr. Jun–Oct brings habagat swells — Galera stays open but expect choppy crossings and possible trip reshuffles. Whale shark season: Feb–Apr in Puerto Galera channel.</p><div class="mt-3 rounded-xl bg-ocean-50 p-3 text-sm flex items-start gap-2"><i data-lucide="thermometer" class="w-4 h-4 mt-0.5 text-ocean-700 shrink-0"></i><span><strong>Weather:</strong> 26–32°C lowlands · 14–20°C on Halcon summit. Afternoon showers common; always pack a dry bag (we lend them free).</span></div></div>
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="backpack" class="w-5 h-5 text-ocean-700"></i> What to bring</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5 list-disc pl-5"><li>Reef-safe sunscreen, rash guard, aqua shoes</li><li>Valid ID + dive certification card (if diving)</li><li>2L water bottle (refill stations on all boats)</li><li>Light rain shell Nov–Feb; headlamp for Halcon</li><li>Cash: ATMs sparse in Sablayan; GCash widely accepted</li></ul><h4 class="font-bold mt-4 flex items-center gap-2"><i data-lucide="shirt" class="w-4 h-4"></i> Dress code</h4><p class="text-sm text-slate-600">Beachwear is fine on the sand; cover shoulders/knees in town, churches & Mangyan villages. No camouflage swimwear (local ordinance near ports).</p></div>
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="life-buoy" class="w-5 h-5 text-ocean-700"></i> Safety reminders</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5 list-disc pl-5"><li>Always wear life vests on island-hopping (provided, sanitized).</li><li>Dive only with our briefed masters; 24-hr no-fly rule enforced.</li><li>Halcon requires DENR permit + guide ratio 1:5; no solo treks.</li><li>Drink only treated/bottled water; we carry first-aid + oxygen on dive boats.</li></ul><h4 class="font-bold mt-4 flex items-center gap-2"><i data-lucide="heart-handshake" class="w-4 h-4"></i> Local customs</h4><p class="text-sm text-slate-600">Ask before photographing Mangyan elders; remove hats in homes; haggle kindly at markets. A simple “Salamat po” goes far.</p></div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-5 mt-5">
+      <div class="card p-6"><h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="leaf" class="w-5 h-5 text-palm-600"></i> Environmental guidelines</h3><ul class="text-sm text-slate-600 mt-2 space-y-1.5"><li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-palm-600 shrink-0"></i> Take only photos — corals, shells & sand stay on the island.</li><li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-palm-600 shrink-0"></i> Use provided reef-safe sunscreen; ordinary sunscreen banned at Apo Reef.</li><li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-palm-600 shrink-0"></i> Segregate trash; every boat carries color-coded bins.</li><li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-palm-600 shrink-0"></i> Keep 5 m from turtles & 10 m from whale sharks. Never touch.</li></ul></div>
+      <div class="rounded-2xl bg-red-50 border border-red-200 p-6"><h3 class="font-bold text-lg text-red-900 flex items-center gap-2"><i data-lucide="siren" class="w-5 h-5"></i> Emergency contacts</h3><div class="grid sm:grid-cols-2 gap-3 mt-3 text-sm"><div class="bg-white rounded-xl p-3"><p class="font-bold">Lakbay 24/7 Hotline</p><p>+63 917 123 4567</p></div><div class="bg-white rounded-xl p-3"><p class="font-bold">PCG Puerto Galera</p><p>(043) 287 1234 · VHF Ch.16</p></div><div class="bg-white rounded-xl p-3"><p class="font-bold">Oriental Mindoro Tourism</p><p>(043) 288 1122</p></div><div class="bg-white rounded-xl p-3"><p class="font-bold">Hospitals</p><p>OMPH Calapan (043) 288 2000 · Galera Infirmary 911</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════ FOOTER (consistent across all views) ══════════ -->
+<footer class="bg-ocean-900 text-ocean-100 mt-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid gap-10 md:grid-cols-4">
+    <div>
+      <div class="flex items-center gap-2 text-white"><span class="grid place-items-center h-10 w-10 rounded-xl bg-white/10 font-extrabold">LM</span><span class="font-display font-bold text-xl">Lakbay Mindoro</span></div>
+      <p class="text-sm mt-3 text-ocean-200">Community-led tours to Puerto Galera, Apo Reef & Mt. Halcon. DOT-accredited · Reef-safe · Mangyan-partnered since 2016.</p>
+      <div class="flex gap-2 mt-4">
+        <a class="soc !bg-white/10 !text-white" href="#" aria-label="Facebook" onclick="return socialClick('Facebook')"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+        <a class="soc !bg-white/10 !text-white" href="#" aria-label="Instagram" onclick="return socialClick('Instagram')"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+        <a class="soc !bg-white/10 !text-white" href="#" aria-label="TikTok" onclick="return socialClick('TikTok')"><i data-lucide="music-2" class="w-4 h-4"></i></a>
+        <a class="soc !bg-white/10 !text-white" href="#" aria-label="YouTube" onclick="return socialClick('YouTube')"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+      </div>
+    </div>
+    <div><h4 class="footer-h">Quick Links</h4><ul class="footer-links">
+      <li><a href="#home" data-nav="home">Home</a></li><li><a href="#about" data-nav="about">About Us</a></li><li><a href="#experiences" data-nav="experiences">Experiences</a></li><li><a href="#packages" data-nav="packages">Tour Packages</a></li><li><a href="#booking" data-nav="booking">Book Your Trip</a></li><li><a href="#guide" data-nav="guide">Travel Guide</a></li>
+    </ul></div>
+    <div><h4 class="footer-h">Destinations</h4><ul class="footer-links">
+      <li><a href="#visit" data-nav="visit">Puerto Galera</a></li><li><a href="#visit" data-nav="visit">Apo Reef Natural Park</a></li><li><a href="#visit" data-nav="visit">Mt. Halcon</a></li><li><a href="#gallery" data-nav="gallery">Photo Gallery</a></li><li><a href="#contact" data-nav="contact">Contact Us</a></li>
+    </ul></div>
+    <div><h4 class="footer-h">Stay in the loop</h4><p class="text-sm text-ocean-200">Promo fares & ferry advisories, monthly.</p>
+      <form id="footerNews" class="mt-3 flex gap-2"><input id="footerEmail" type="email" required placeholder="Email address" class="flex-1 min-w-0 rounded-xl px-3 py-2.5 text-slate-900 text-sm" /><button class="btn-sand !py-2.5 !px-4 text-sm">Join</button></form>
+      <p class="text-xs mt-3 text-ocean-300 flex flex-wrap items-center gap-x-2 gap-y-1"><span class="inline-flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> J.P. Rizal St., Calapan City 5200</span> · <span class="inline-flex items-center gap-1"><i data-lucide="mail" class="w-3.5 h-3.5"></i> hello@lakbaymindoro.ph</span> · <span class="inline-flex items-center gap-1"><i data-lucide="phone" class="w-3.5 h-3.5"></i> +63 (43) 288 1234</span></p>
+    </div>
+  </div>
+  <div class="border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ocean-300">
+      <p>© 2026 Lakbay Mindoro Travel & Tours. All rights reserved. · DOT-TTA-2019-0417</p>
+      <p class="text-center flex items-center justify-center gap-1.5 flex-wrap"><i data-lucide="lock" class="w-3.5 h-3.5 shrink-0"></i><span> Privacy: inquiries are used only to process your booking and are never sold. Read our <button class="underline" onclick="toast('Privacy policy: we store inquiries locally for demo; no data leaves your browser.')">Privacy Notice</button>.</span></p>
+    </div>
+  </div>
+</footer>
+
+<!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/85 p-4">
+  <button class="absolute top-4 right-4 text-white hover:text-amber-300 transition-colors" onclick="closeLightbox()" aria-label="Close"><i data-lucide="x" class="w-7 h-7"></i></button>
+  <button class="lb-btn left-3 grid place-items-center" onclick="stepLightbox(-1)" aria-label="Previous photo"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+  <figure class="max-w-4xl w-full"><img id="lbImg" src="" alt="" class="w-full max-h-[75vh] object-contain rounded-2xl" /><figcaption id="lbCap" class="text-center text-white/90 text-sm mt-3"></figcaption></figure>
+  <button class="lb-btn right-3 grid place-items-center" onclick="stepLightbox(1)" aria-label="Next photo"><i data-lucide="arrow-right" class="w-5 h-5"></i></button>
+</div>
+
+<!-- Booking success modal -->
+<div id="successModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-ocean-950/70 p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center shadow-soft">
+    <div class="mx-auto h-16 w-16 grid place-items-center rounded-full bg-palm-100 text-palm-700"><i data-lucide="party-popper" class="w-8 h-8"></i></div>
+    <h3 class="font-display text-2xl font-bold text-ocean-900 mt-4">Inquiry received!</h3>
+    <p class="text-sm text-slate-600 mt-2" id="successText">Thank you! Reference code <strong id="refCode">LM-0000</strong>. We will email your confirmation within 2 hours.</p>
+    <div class="grid grid-cols-2 gap-2 mt-6"><button onclick="closeModal()" class="btn-secondary justify-center !py-2.5 text-sm">Done</button><button onclick="closeModal();go('packages')" class="btn-primary justify-center !py-2.5 text-sm">View Packages</button></div>
+  </div>
+</div>
+
+<div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] hidden max-w-[92vw] rounded-2xl bg-ink text-white px-5 py-3 text-sm font-semibold shadow-soft"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./app.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });</script>
+</body>
+</html>
