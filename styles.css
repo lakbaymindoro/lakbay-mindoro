@@ -182,6 +182,12 @@ header.scrolled { background:rgba(255,255,255,.92); }
 .t-btn, .check, .nav-dropdown .dropdown-panel { border-radius:var(--radius); }
 .pill, .g-tag, .drop-link { border-radius:var(--radius-sm); }
 
+/* Lenis smooth-scroll — required base styles */
+html.lenis, html.lenis body { height:auto; }
+.lenis.lenis-smooth { scroll-behavior:auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior:contain; }
+.lenis.lenis-stopped { overflow:hidden; }
+
 /* Custom scrollbar — slim, flat, matches the minimal theme */
 html { scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
 ::-webkit-scrollbar { width:10px; height:8px; }
@@ -191,4 +197,21 @@ html { scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
 .btn-primary, .btn-sand, .card, .t-card, .faq-item.open,
 .nav-dropdown .dropdown-panel, header.scrolled { box-shadow:none; }
 img { user-select:none; }
-@media (max-width:640px){ .h2{font-size:1.45rem;} }
+
+/* ── Mobile refinements ── */
+html, body { overflow-x:hidden; overflow-x:clip; }
+@media (max-width:640px){
+  .h2{font-size:1.45rem;}
+  /* Prevent iOS auto-zoom on focus + roomier tap targets */
+  .input, .hero-field select, .hero-field input,
+  .field select, .field input,
+  #newsletterEmail, #footerEmail { font-size:16px; }
+  /* Keep header + hero eyebrow on one tidy line at 360px */
+  .logo-sub { font-size:9px; letter-spacing:.12em; }
+  .logo-name { font-size:16px; }
+  .hero-eyebrow { font-size:10px; letter-spacing:.14em; }
+  /* Comfortable reading rhythm on small screens */
+  .card { border-radius:var(--radius); }
+  .g-cap { font-size:11px; }
+  #toast { bottom:1rem; }
+}
