@@ -87,15 +87,27 @@ const PAGES = ['home','about','experiences','packages','gallery','visit','bookin
 function go(page){
   if(!PAGES.includes(page)) page='home';
   $$('.page').forEach(p=>p.classList.toggle('active', p.dataset.page===page));
-  $$('#desktopNav .nav-link').forEach(a=>a.classList.toggle('active', a.dataset.nav===page));
+  $$('#desktopNav .nav-link[data-nav]').forEach(a=>a.classList.toggle('active', a.dataset.nav===page));
+  $$('#mobileMenu .m-link').forEach(a=>a.classList.toggle('active', a.dataset.nav===page));
+  // Highlight Guide dropdown when on visit / guide sub-pages
+  const guideBtn = document.querySelector('[data-nav-group="guide"]');
+  const guideLinks = [...document.querySelectorAll('.dropdown-panel .drop-link')];
+  const onGuide = (page==='visit'||page==='guide');
+  if(guideBtn) guideBtn.classList.toggle('active', onGuide);
+  guideLinks.forEach(a=>a.classList.toggle('active', a.dataset.nav===page));
   $('#mobileMenu').classList.add('hidden');
+  const dd = $('#guideDropdown'); if(dd){ dd.classList.remove('open'); guideBtn?.setAttribute('aria-expanded','false'); }
   if(('#'+page)!==location.hash) history.replaceState(null,'','#'+page);
   window.scrollTo({top:0, behavior:'smooth'});
   if(page==='visit') setTimeout(initMap, 120);
 }
 document.addEventListener('click', e=>{
+  const faqLink = e.target.closest('[data-scroll-faq]');
+  if(faqLink){ e.preventDefault(); go('packages'); setTimeout(()=>$('#faq')?.scrollIntoView({behavior:'smooth'}), 150); return; }
   const nav = e.target.closest('[data-nav]'); if(nav){ e.preventDefault(); go(nav.dataset.nav); }
   const book = e.target.closest('[data-book]'); if(book){ prefillBooking(book.dataset.book); }
+  // Close guide dropdown when clicking outside
+  if(!e.target.closest('#guideDropdown')) $('#guideDropdown')?.classList.remove('open');
 });
 window.addEventListener('hashchange', ()=>go(location.hash.replace('#','')||'home'));
 
@@ -103,8 +115,8 @@ window.addEventListener('hashchange', ()=>go(location.hash.replace('#','')||'hom
 function expCard(x){
   return `<article class="card overflow-hidden group hover:-translate-y-1 transition-transform" data-cat="${x.cat}">
     <div class="relative h-52 overflow-hidden"><img src="${x.img}" alt="${x.title}" loading="lazy" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"/>
-    <span class="absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ocean-800">${x.tag}</span>
-    <span class="absolute bottom-3 right-3 rounded-full bg-ocean-950/80 text-white px-3 py-1 text-xs font-bold inline-flex items-center gap-1"><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400"></i> ${x.rating}</span></div>
+    <span class="absolute top-3 left-3 rounded-md bg-white/95 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ocean-800">${x.tag}</span>
+    <span class="absolute bottom-3 right-3 rounded-md bg-ocean-950/80 text-white px-3 py-1 text-xs font-bold inline-flex items-center gap-1"><i data-lucide="star" class="w-3.5 h-3.5 text-amber-400"></i> ${x.rating}</span></div>
     <div class="p-5">
       <div class="flex items-start justify-between gap-2"><h3 class="font-bold text-lg leading-snug">${x.title}</h3></div>
       <p class="text-xs font-bold text-palm-600 mt-1 inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${x.duration}</p>
@@ -132,7 +144,7 @@ $$('#expFilters .f-btn').forEach(b=>b.addEventListener('click', ()=>{
 function renderPackages(){
   $('#homePackages').innerHTML = PACKAGES.map((p,i)=>`
     <article class="card overflow-hidden flex flex-col">
-      <div class="relative h-44"><img src="${p.img}" alt="${p.name}" loading="lazy" class="h-full w-full object-cover"/><span class="absolute top-3 left-3 rounded-full bg-sand-400 px-3 py-1 text-[11px] font-extrabold uppercase">${p.tag}</span></div>
+      <div class="relative h-44"><img src="${p.img}" alt="${p.name}" loading="lazy" class="h-full w-full object-cover"/><span class="absolute top-3 left-3 rounded-md bg-sand-400 px-3 py-1 text-[11px] font-extrabold uppercase">${p.tag}</span></div>
       <div class="p-5 flex flex-col flex-1">
         <p class="text-xs font-bold text-ocean-600 uppercase tracking-widest">${p.dur}</p>
         <h3 class="font-display text-xl font-bold text-ocean-900">${p.name}</h3>
@@ -144,15 +156,15 @@ function renderPackages(){
   $('#packagesDetail').innerHTML = PACKAGES.map((p,i)=>`
     <article class="card overflow-hidden">
       <div class="grid lg:grid-cols-2">
-        <div class="relative min-h-[240px]"><img src="${p.img}" alt="${p.name}" loading="lazy" class="absolute inset-0 h-full w-full object-cover"/><span class="absolute top-4 left-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ocean-800">${p.tag}</span></div>
+        <div class="relative min-h-[240px]"><img src="${p.img}" alt="${p.name}" loading="lazy" class="absolute inset-0 h-full w-full object-cover"/><span class="absolute top-4 left-4 rounded-md bg-white/95 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ocean-800">${p.tag}</span></div>
         <div class="p-6 sm:p-8">
           <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-palm-600">${p.dur} · ${p.dest}</p>
           <h2 class="font-display text-3xl font-bold text-ocean-900 mt-1">${i+1}. ${p.name}</h2>
           <p class="text-sm text-slate-500 mt-1 inline-flex items-center gap-1.5"><i data-lucide="target" class="w-4 h-4 text-palm-600"></i> Target market: ${p.market}</p>
           <p class="mt-2 text-3xl font-extrabold text-ocean-800">${peso(p.price)} <span class="text-sm font-medium text-slate-400">estimated /pax (twin sharing)</span></p>
           <div class="grid sm:grid-cols-2 gap-3 mt-4 text-[13px]">
-            <div class="rounded-xl bg-palm-50 border border-palm-200 p-4"><p class="font-extrabold text-palm-700 mb-1 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> INCLUSIONS</p><ul class="space-y-1 text-slate-600">${p.inc.map(x=>`<li>• ${x}</li>`).join('')}</ul></div>
-            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4"><p class="font-extrabold text-slate-500 mb-1 flex items-center gap-1.5"><i data-lucide="x" class="w-4 h-4"></i> EXCLUSIONS</p><ul class="space-y-1 text-slate-500">${p.exc.map(x=>`<li>• ${x}</li>`).join('')}</ul></div>
+            <div class="rounded-lg bg-palm-50 border border-palm-200 p-4"><p class="font-extrabold text-palm-700 mb-1 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> INCLUSIONS</p><ul class="space-y-1 text-slate-600">${p.inc.map(x=>`<li>• ${x}</li>`).join('')}</ul></div>
+            <div class="rounded-lg bg-slate-50 border border-slate-200 p-4"><p class="font-extrabold text-slate-500 mb-1 flex items-center gap-1.5"><i data-lucide="x" class="w-4 h-4"></i> EXCLUSIONS</p><ul class="space-y-1 text-slate-500">${p.exc.map(x=>`<li>• ${x}</li>`).join('')}</ul></div>
           </div>
           <div class="mt-4 space-y-2" id="itin-${i}">
             <p class="font-extrabold text-sm text-ocean-800 flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> SUGGESTED DAY-TO-DAY ITINERARY</p>
@@ -295,9 +307,15 @@ function initMap(){
 function flyTo(coords,label){ if(!map)initMap(); map.flyTo(coords,11,{duration:1.2}); toast(`Flying to ${label}…`); }
 function locateUser(){ if(!navigator.geolocation) return toast('Geolocation not supported.'); navigator.geolocation.getCurrentPosition(p=>{ const c=[p.coords.latitude,p.coords.longitude]; map.setView(c,10); L.marker(c).addTo(map).bindPopup('You are here').openPopup(); }); }
 
-/* ---------- CHROME (mobile menu, header) ---------- */
+/* ---------- CHROME (mobile menu, header, dropdown) ---------- */
 $('#mobileBtn').addEventListener('click', ()=>$('#mobileMenu').classList.toggle('hidden'));
 window.addEventListener('scroll', ()=>$('#siteHeader').classList.toggle('scrolled', scrollY>10));
+document.querySelector('[data-nav-group="guide"]')?.addEventListener('click', e=>{
+  e.preventDefault(); e.stopPropagation();
+  const dd = $('#guideDropdown');
+  const open = dd.classList.toggle('open');
+  e.currentTarget.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
 
 /* ---------- INIT ---------- */
 (function init(){
